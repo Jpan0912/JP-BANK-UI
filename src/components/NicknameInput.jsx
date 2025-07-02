@@ -1,4 +1,5 @@
 function NicknameInput({ nickname, setNickname, error, showError }) {
+  
     return (
       <div>
         <label>Account Nickname</label>

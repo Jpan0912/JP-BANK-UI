@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import Accounts from '../components/Accounts';
 import NicknameInput from '../components/NicknameInput';
 
 function CreateAccountPage() {
     const [nickname, setNickname] = useState("");
+    const [accountType, setAccountType] = useState("")
     const [errors, setErrors] = useState({});
     const [showErrors, setShowErrors] = useState(false);
 
@@ -38,7 +40,17 @@ function CreateAccountPage() {
                 error={errors.nickname}
                 showError={showErrors}
             />
+            <div>
+            <Accounts
+                account={accountType}
+                setAccount={setAccountType}
+                error={errors.nickname}
+                showError={showErrors}
+            />
+            </div>
             <button onClick={handleSubmit}>Open Bank Account</button>
+
+        
         </div>
     );
 }
