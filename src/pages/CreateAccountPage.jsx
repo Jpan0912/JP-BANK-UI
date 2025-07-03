@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Accounts from '../components/Accounts';
 import NicknameInput from '../components/NicknameInput';
+import axios from 'axios';
 
 function CreateAccountPage() {
     const [nickname, setNickname] = useState("");
     const [accountType, setAccountType] = useState("")
+    const [savingsGoal, setSavingsGoal] = useState("")
     const [errors, setErrors] = useState({});
     const [showErrors, setShowErrors] = useState(false);
 
@@ -13,7 +15,13 @@ function CreateAccountPage() {
         if (nickname.length < 5 || nickname.length > 30) {
           newErrors.nickname = "Nickname must be between 5 and 30 characters";
         }
-    
+        
+        if(accountType === "savings") {
+            if(!savingsGoal || isNaN(savingsGoal) || savingsGoal <= 0 || savingsGoal >= 1000000){
+                newErrors.savingsGoal = "Savings Goal must be greater than 0 and no more than $1,000,000"
+            }
+        }
+
         setErrors(newErrors);
         setShowErrors(true);
     
@@ -21,6 +29,7 @@ function CreateAccountPage() {
             console.log("Form submitted:", { nickname });
             // TODO: AddAPI request here
         }
+        console.log("Savings goal:", savingsGoal);
       };
 
       useEffect(() => {
@@ -30,6 +39,15 @@ function CreateAccountPage() {
               }
           }
       }, [nickname]);
+
+      useEffect(() => {
+        if (showErrors && errors.savingsGoal) {
+          const goalAsNumber = parseFloat(savingsGoal);
+          if (!isNaN(goalAsNumber) && goalAsNumber > 0 && goalAsNumber <= 1000000) {
+            setErrors(prev => ({ ...prev, savingsGoal: null }));
+          }
+        }
+      }, [savingsGoal]);
 
     return (
         <div>
@@ -44,17 +62,14 @@ function CreateAccountPage() {
             <Accounts
                 account={accountType}
                 setAccount={setAccountType}
-                error={errors.nickname}
+                savingsGoal={savingsGoal}
+                setSavingsGoal={setSavingsGoal}
+                error={errors.savingsGoal}
                 showError={showErrors}
             />
             </div>
-            <button onClick={handleSubmit}>Open Bank Account</button>
-
-        
+            <button onClick={handleSubmit}>Create Account</button>
         </div>
     );
 }
-
-
-
 export default CreateAccountPage;

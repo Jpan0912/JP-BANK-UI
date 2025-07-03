@@ -1,6 +1,7 @@
 import React, { useState} from 'react';
+import SavingsGoalInput from './SavingsGoalInput';
 
-function Accounts({ account, setAccount, error, showError}){
+function Accounts({ account, setAccount,savingsGoal, setSavingsGoal, error, showError}){
     const [showSavingsGoal, setShowSavingsGoal] = useState(false);
 
     const handleChange = (e) => {
@@ -32,7 +33,13 @@ function Accounts({ account, setAccount, error, showError}){
                 onChange={handleChange}               
                 />
             </label>
-            {showSavingsGoal && (<input type="number" placeholder="Enter savings goal"/>)}
+            {showSavingsGoal && (
+            <SavingsGoalInput
+                savingsGoal={savingsGoal}
+                setSavingsGoal={setSavingsGoal}
+                error={error}
+                showError={showError}
+            />)}
         </div>
     )
 }
