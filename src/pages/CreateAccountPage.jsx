@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import Accounts from '../components/Accounts';
 import NicknameInput from '../components/NicknameInput';
 import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+
 
 function CreateAccountPage() {
     const [nickname, setNickname] = useState("");
@@ -10,7 +13,32 @@ function CreateAccountPage() {
     const [errors, setErrors] = useState({});
     const [showErrors, setShowErrors] = useState(false);
 
-    const handleSubmit = () => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const mock = new MockAdapter(axios, { delayResponse: 500});
+
+        mock.onPost('https://api.example.com/accounts').reply((config) => {
+            console.log("Mock Triggered")
+
+            const { nickname, accountType, savingsGoal} = JSON.parse(config.data);
+            const parsedGoal = parseFloat(savingsGoal);
+
+            if ((accountType === 'savings' && parsedGoal >= 1000000)) {
+                return [400, { error: "Mock validation failed" }];
+              }
+
+            return [201, {
+                message: "Mock: Account created successfully",
+                nickname,
+                accountType,
+                savingsGoal
+            }];
+        });
+        return () => mock.restore();
+    }, []);
+
+    const handleSubmit = async () => {
         const newErrors = {};
         if (nickname.length < 5 || nickname.length > 30) {
           newErrors.nickname = "Nickname must be between 5 and 30 characters";
@@ -28,6 +56,20 @@ function CreateAccountPage() {
         if (Object.keys(newErrors).length === 0){
             console.log("Form submitted:", { nickname });
             // TODO: AddAPI request here
+            try{
+                const response = await axios.post('https://api.example.com/accounts', {
+                    nickname,
+                    accountType,
+                    savingsGoal: accountType === "savings" ? savingsGoal : null
+                });
+                
+                console.log("Account created and Mock response:", response.data);
+                navigate('/');
+            }catch (error) {
+                const errorMsg = error.response?.data?.error || error.message;
+                console.error("Failed to submit form:", errorMsg);
+              }
+              
         }
         console.log("Savings goal:", savingsGoal);
       };
